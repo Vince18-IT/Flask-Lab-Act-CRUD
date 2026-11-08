@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block menu %}
+    <a href="/logout" class="w3-button w3-right w3-bar-item w3-hover-white w3-round">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="w3-row-padding">
+
+    <div class="w3-col m4 l3 w3-margin-bottom">
+
+        <div class="w3-card-4 w3-round-xlarge w3-white">
+            
+            <div class="w3-container w3-blue w3-padding-12 w3-center" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <h4 class="w3-margin-none"><b>ADD STUDENT</b></h4>
+            </div>
+
+            <form action="/addstudent" method="POST" class="w3-container w3-padding-16">
+                <p>
+                    <label class="w3-text-dark-grey"><b>IDNO</b></label>
+                    <input class="w3-input w3-border w3-round" type="text" name="idno" required />
+                </p>
+                <p>
+                    <label class="w3-text-dark-grey"><b>LASTNAME</b></label>
+                    <input class="w3-input w3-border w3-round" type="text" name="lastname" required />
+                </p>
+                <p>
+                    <label class="w3-text-dark-grey"><b>FIRSTNAME</b></label>
+                    <input class="w3-input w3-border w3-round" type="text" name="firstname" required />
+                </p>
+                <p>
+                    <label class="w3-text-dark-grey"><b>COURSE</b></label>
+                    <select class="w3-select w3-border w3-round" name="course" required>
+                        <option value="" disabled selected>Select Course</option>
+                        <option value="BSIT">BSIT</option>
+                        <option value="BSCS">BSCS</option>
+                        <option value="DAAIT">DAAIT</option>
+                    </select>
+                </p>
+                <p>
+                    <label class="w3-text-dark-grey"><b>LEVEL</b></label>
+                    <select class="w3-select w3-border w3-round" name="level" required>
+                        <option value="" disabled selected>Select Level</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                    </select>
+                </p>
+                <p class="w3-right-align">
+                    <button type="submit" class="w3-button w3-blue w3-hover-dark-blue w3-round-large"><b>ADD</b></button>
+                </p>
+            </form>
+
+        </div>
+
+    </div>
+
+    <div class="w3-col m8 l9">
+        <div class="w3-responsive w3-card-4 w3-round-xlarge">
+            <table class="w3-table-all">
+                <thead>
+                    <tr class="w3-blue">
+                        <th>ID</th>
+                        <th>ID No.</th>
+                        <th class="w3-hide-small">Lastname</th>
+                        <th class="w3-hide-small">Firstname</th>
+                        <th class="w3-hide-small">Course</th>
+                        <th class="w3-hide-small">Level</th>
+                        <th class="w3-hide-medium w3-hide-large">Name</th>
+                        <th class="w3-hide-medium w3-hide-large">Course & Level</th>
+                        <th>Control</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in slist %}
+                    <tr>
+                        <td>{{ student.id }}</td>
+                        <td>{{ student.idno }}</td>
+                        <td class="w3-hide-small">{{ student.lastname }}</td>
+                        <td class="w3-hide-small">{{ student.firstname }}</td>
+                        <td class="w3-hide-small">{{ student.course }}</td>
+                        <td class="w3-hide-small">{{ student.level }}</td>
+                        <td class="w3-hide-medium w3-hide-large">{{ student.lastname }}, {{ student.firstname }}</td>
+                        <td class="w3-hide-medium w3-hide-large">{{ student.course }}-{{ student.level }}</td>
+                        <td>
+                            <a href="/deletestudent/{{ student.idno }}" 
+                               class="w3-button w3-small w3-red w3-hover-dark-red w3-round"
+                               onclick="return confirm('Delete this record?');">&times;</a>
+                            
+                            <button class="w3-button w3-small w3-blue w3-hover-dark-blue w3-round"
+                                    onclick="openEditModal('{{ student.idno }}', '{{ student.lastname }}', '{{ student.firstname }}', '{{ student.course }}', '{{ student.level }}')">&#9998;</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="editModal" class="w3-modal " style="padding-top: 50px;">
+
+    <div class="w3-modal-content w3-card-4 w3-animate-top w3-round-large" style="width: 90%; max-width: 480px; margin: 10px auto;">
+        <header class="w3-container w3-blue w3-padding" style="border-top-left-radius: 8px; border-top-right-radius: 8px;">
+            <span onclick="document.getElementById('editModal').style.display='none'" 
+                  class="w3-button w3-display-topright w3-hover-red" style="border-top-right-radius: 8px;">&times;</span>
+            <h4 class="w3-margin-none"><b>EDIT STUDENT</b></h4>
+        </header>
+        
+        <form action="/updatestudent" method="POST" class="w3-container w3-padding-16">
+            <p class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>IDNO</b></label>
+                <input class="w3-input w3-border w3-round w3-light-grey" type="text" id="edit_idno" name="idno" readonly />
+            </p>
+            <p class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>LASTNAME</b></label>
+                <input class="w3-input w3-border w3-round" type="text" id="edit_lastname" name="lastname" required />
+            </p>
+            <p class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>FIRSTNAME</b></label>
+                <input class="w3-input w3-border w3-round" type="text" id="edit_firstname" name="firstname" required />
+            </p>
+            <p class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>COURSE</b></label>
+                <select class="w3-select w3-border w3-round" id="edit_course" name="course" required>
+                    <option value="BSIT">BSIT</option>
+                    <option value="BSCS">BSCS</option>
+                    <option value="DAAIT">DAAIT</option>
+                </select>
+            </p>
+            <p class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>LEVEL</b></label>
+                <select class="w3-select w3-border w3-round" id="edit_level" name="level" required>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </p>
+            <div class="w3-right-align w3-margin-top">
+                <button type="button" onclick="document.getElementById('editModal').style.display='none'" 
+                        class="w3-button w3-grey w3-round w3-mobile w3-margin-bottom">CANCEL</button>
+                <button type="submit" class="w3-button w3-blue w3-hover-dark-blue w3-round w3-mobile w3-margin-bottom">SAVE</button>
+            </div>
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+function openEditModal(idno, lastname, firstname, course, level) {
+    document.getElementById('edit_idno').value = idno;
+    document.getElementById('edit_lastname').value = lastname;
+    document.getElementById('edit_firstname').value = firstname;
+    document.getElementById('edit_course').value = course.toUpperCase();
+    document.getElementById('edit_level').value = level;
+    document.getElementById('editModal').style.display = 'block';
+}
+</script>
+{% endblock %}

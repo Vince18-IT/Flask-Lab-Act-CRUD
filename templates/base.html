@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='w3.css') }}">
+    <title>SCHOOL v1.0</title>
+</head>
+<body>
+    <div class="w3-bar w3-blue  w3-padding" style="position: sticky; top: 0; z-index: 100;">
+        <div class="w3-bar-item w3-large">SCHOOL v1.0</div>
+        {% block menu %}
+        {% endblock %}
+    </div>
+
+    {% with flash_messages = get_flashed_messages() %}
+        {% if flash_messages %}
+            <div class="w3-container w3-padding-16">
+                {% for message in flash_messages %}
+                    <div class="w3-bar w3-amber w3-padding w3-container w3-round-xlarge w3-center w3-animate-top">
+                        <b>{{ message }}</b>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="w3-container w3-padding-16">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <footer class="w3-container w3-center w3-padding-16">
+    <hr>
+    <p>Copyright &copy; Lee Vincent Laurito 2024 SCHOOL v1.0</p>
+    </footer>
+
+</body>
+</html>

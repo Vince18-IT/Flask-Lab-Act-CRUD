@@ -1,0 +1,23 @@
+{% extends "base.html"%}
+
+{% block content %}
+    <div class="w3-row-padding">
+    <div class="w3-col m6 l4 w3-display-topmiddle" style="position: relative; margin-top: 20px;">
+        <form class="w3-card-4 w3-container w3-padding-16 w3-round-xlarge w3-animate-top" method="POST" action="/userlogin">
+            <p>
+                <label><b>Email</b></label>
+                <input type="email" id="email" name="email" class="w3-input w3-border w3-round" required />
+            </p>
+
+            <p>
+                <label><b>PASSWORD</b></label>
+                <input type="password" id="password" name="password" class="w3-input w3-border w3-round" required />
+            </p>
+
+            <p class="w3-center">
+                <input type="submit" value="LOGIN" class="w3-button w3-blue w3-round-large w3-hover-blue w3-block" />
+            </p>
+        </form>
+    </div>
+</div>
+{% endblock %}
