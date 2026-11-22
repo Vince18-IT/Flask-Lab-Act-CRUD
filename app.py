@@ -1,4 +1,6 @@
+import os
 import sys
+import base64
 sys.path.insert(0, 'db/')
 
 from flask import Flask, render_template, request, redirect, url_for, session, flash 
@@ -28,6 +30,14 @@ def main()->None:
     else:
         return redirect(url_for('index'))
 
+@app.route("/register")
+def register() -> None:
+    if 'email' in session:
+        return render_template("register.html")
+    else:
+        return redirect(url_for('index'))
+
+
 @app.route("/userlogin",methods=['POST'])
 def userlogin()->None:
     email:str = request.form['email']
@@ -52,8 +62,23 @@ def add_student():
     firstname = request.form['firstname']
     course = request.form['course']
     level = request.form['level']
+    image_data = request.form.get('image', '')
 
-    if addstudent(idno=idno, lastname=lastname, firstname=firstname, course=course, level=level):
+    existing_student = getrecord('students', idno=idno)
+    if len(existing_student) > 0:
+        flash("Failed to add: ID No. already exists!")
+        return redirect(url_for('main'))
+    
+    image_path = ""
+    if image_data and "," in image_data:
+        os.makedirs("static/images", exist_ok=True)
+        header, encoded = image_data.split(",", 1)
+        file_path = f"static/images/{idno}.jpg"
+        with open(file_path, "wb") as f:
+            f.write(base64.b64decode(encoded))
+        image_path = f"images/{idno}.jpg"
+
+    if addstudent(idno=idno, lastname=lastname, firstname=firstname, course=course, level=level, image=image_path):
         flash("Student added successfully!")
     else:
         flash("Failed to add student. ID No may already exist.")
@@ -69,8 +94,24 @@ def update_student():
     firstname = request.form['firstname']
     course = request.form['course']
     level = request.form['level']
+    image_data = request.form.get('image', '')
 
-    if updatestudent(idno, lastname=lastname, firstname=firstname, course=course, level=level):
+    update_fields = {
+        "lastname": lastname,
+        "firstname": firstname,
+        "course": course,
+        "level": level
+    }
+
+    if image_data and "," in image_data:
+        os.makedirs("static/images", exist_ok=True)
+        header, encoded = image_data.split(",", 1)
+        file_path = f"static/images/{idno}.jpg"
+        with open(file_path, "wb") as f:
+            f.write(base64.b64decode(encoded))
+        update_fields["image"] = f"images/{idno}.jpg"
+
+    if updatestudent(idno, **update_fields):
         flash("Student updated successfully!")
     else:
         flash("Failed to update student.")
@@ -80,6 +121,13 @@ def update_student():
 def delete_student(idno):
     if 'email' not in session:
         return redirect(url_for('index'))
+
+    
+    student = getrecord("students", idno=idno)
+    if len(student) > 0 and student[0]['image']:
+        file_path = os.path.join("static", student[0]['image'])
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
     if deleterecord("students", idno=idno):
         flash("Student deleted successfully!")

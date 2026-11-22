@@ -10,7 +10,7 @@ def createDB() -> None:
     cursor: any = conn.cursor()
     conn.row_factory = Row
     
-    sql: str = "CREATE TABLE IF NOT EXISTS `students`(id integer primary key autoincrement, idno varchar(10) unique, lastname varchar(50), firstname varchar(50), course varchar(10), level varchar(5))"
+    sql: str = "CREATE TABLE IF NOT EXISTS `students`(id integer primary key autoincrement, idno varchar(10) unique, lastname varchar(50), firstname varchar(50), course varchar(10), level varchar(5), image text)"
     cursor.execute(sql)
     
     sql_users: str = "CREATE TABLE IF NOT EXISTS `users`(id integer primary key autoincrement, email varchar(100) unique, password varchar(100), name varchar(100))"

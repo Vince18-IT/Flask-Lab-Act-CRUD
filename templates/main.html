@@ -1,67 +1,26 @@
 {% extends "base.html" %}
 
 {% block menu %}
+    <a href="/register" class="w3-button w3-bar-item w3-card w3-blue w3-hover-white w3-round w3-margin-left">REGISTER</a>
     <a href="/logout" class="w3-button w3-right w3-bar-item w3-hover-white w3-round">Logout</a>
 {% endblock %}
 
 {% block content %}
 <div class="w3-row-padding">
-
-    <div class="w3-col m4 l3 w3-margin-bottom">
-
-        <div class="w3-card-4 w3-round-xlarge w3-white">
-            
-            <div class="w3-container w3-blue w3-padding-12 w3-center" style="border-top-left-radius: 16px; border-top-right-radius: 16px;">
-                <h4 class="w3-margin-none"><b>ADD STUDENT</b></h4>
-            </div>
-
-            <form action="/addstudent" method="POST" class="w3-container w3-padding-16">
-                <p>
-                    <label class="w3-text-dark-grey"><b>IDNO</b></label>
-                    <input class="w3-input w3-border w3-round" type="text" name="idno" required />
-                </p>
-                <p>
-                    <label class="w3-text-dark-grey"><b>LASTNAME</b></label>
-                    <input class="w3-input w3-border w3-round" type="text" name="lastname" required />
-                </p>
-                <p>
-                    <label class="w3-text-dark-grey"><b>FIRSTNAME</b></label>
-                    <input class="w3-input w3-border w3-round" type="text" name="firstname" required />
-                </p>
-                <p>
-                    <label class="w3-text-dark-grey"><b>COURSE</b></label>
-                    <select class="w3-select w3-border w3-round" name="course" required>
-                        <option value="" disabled selected>Select Course</option>
-                        <option value="BSIT">BSIT</option>
-                        <option value="BSCS">BSCS</option>
-                        <option value="DAAIT">DAAIT</option>
-                    </select>
-                </p>
-                <p>
-                    <label class="w3-text-dark-grey"><b>LEVEL</b></label>
-                    <select class="w3-select w3-border w3-round" name="level" required>
-                        <option value="" disabled selected>Select Level</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                    </select>
-                </p>
-                <p class="w3-right-align">
-                    <button type="submit" class="w3-button w3-blue w3-hover-dark-blue w3-round-large"><b>ADD</b></button>
-                </p>
-            </form>
-
+    <div class="w3-col s12">
+        <div class="w3-margin-bottom">
+            <button onclick="openAddModal()" 
+                    class="w3-button w3-blue w3-hover-dark-blue w3-round-large">
+                <b>+ ADD STUDENT</b>
+            </button>
         </div>
 
-    </div>
-
-    <div class="w3-col m8 l9">
         <div class="w3-responsive w3-card-4 w3-round-xlarge">
             <table class="w3-table-all">
                 <thead>
                     <tr class="w3-blue">
                         <th>ID</th>
+                        <th>Image</th>
                         <th>ID No.</th>
                         <th class="w3-hide-small">Lastname</th>
                         <th class="w3-hide-small">Firstname</th>
@@ -75,43 +34,123 @@
                 <tbody>
                     {% for student in slist %}
                     <tr>
-                        <td>{{ student.id }}</td>
-                        <td>{{ student.idno }}</td>
-                        <td class="w3-hide-small">{{ student.lastname }}</td>
-                        <td class="w3-hide-small">{{ student.firstname }}</td>
-                        <td class="w3-hide-small">{{ student.course }}</td>
-                        <td class="w3-hide-small">{{ student.level }}</td>
-                        <td class="w3-hide-medium w3-hide-large">{{ student.lastname }}, {{ student.firstname }}</td>
-                        <td class="w3-hide-medium w3-hide-large">{{ student.course }}-{{ student.level }}</td>
-                        <td>
+                        <td style="vertical-align: middle;">{{ student.id }}</td>
+                        <td style="vertical-align: middle;">
+                            {% if student.image %}
+                                <img src="{{ url_for('static', filename=student.image) }}" class="w3-circle" style="width: 40px; height: 40px; object-fit: cover;" />
+                            {% else %}
+                                <span class="w3-text-grey w3-small">No Image</span>
+                            {% endif %}
+                        </td>
+                        <td style="vertical-align: middle;">{{ student.idno }}</td>
+                        <td class="w3-hide-small" style="vertical-align: middle;">{{ student.lastname }}</td>
+                        <td class="w3-hide-small" style="vertical-align: middle;">{{ student.firstname }}</td>
+                        <td class="w3-hide-small" style="vertical-align: middle;">{{ student.course }}</td>
+                        <td class="w3-hide-small" style="vertical-align: middle;">{{ student.level }}</td>
+                        <td class="w3-hide-medium w3-hide-large" style="vertical-align: middle;">{{ student.lastname }}, {{ student.firstname }}</td>
+                        <td class="w3-hide-medium w3-hide-large" style="vertical-align: middle;">{{ student.course }}-{{ student.level }}</td>
+                        <td style="vertical-align: middle;">
                             <a href="/deletestudent/{{ student.idno }}" 
                                class="w3-button w3-small w3-red w3-hover-dark-red w3-round"
                                onclick="return confirm('Delete this record?');">&times;</a>
                             
                             <button class="w3-button w3-small w3-blue w3-hover-dark-blue w3-round"
-                                    onclick="openEditModal('{{ student.idno }}', '{{ student.lastname }}', '{{ student.firstname }}', '{{ student.course }}', '{{ student.level }}')">&#9998;</button>
+                                    data-idno="{{ student.idno }}"
+                                    data-lastname="{{ student.lastname }}"
+                                    data-firstname="{{ student.firstname }}"
+                                    data-course="{{ student.course }}"
+                                    data-level="{{ student.level }}"
+                                    data-image="{{ url_for('static', filename=student.image) if student.image else '' }}"
+                                    onclick="openEditModal(this.dataset.idno, this.dataset.lastname, this.dataset.firstname, this.dataset.course, this.dataset.level, this.dataset.image)">&#9998;</button>
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-
         </div>
-
     </div>
-
 </div>
 
-<div id="editModal" class="w3-modal " style="padding-top: 50px;">
-
-    <div class="w3-modal-content w3-card-4 w3-animate-top w3-round-large" style="width: 90%; max-width: 480px; margin: 10px auto;">
+<div id="addModal" class="w3-modal" style="padding-top: 80px;">
+    <div class="w3-modal-content w3-card-4 w3-animate-top w3-round-large" style="width: 90%; max-width: 480px; margin: 0 auto 40px auto;">
         <header class="w3-container w3-blue w3-padding" style="border-top-left-radius: 8px; border-top-right-radius: 8px;">
-            <span onclick="document.getElementById('editModal').style.display='none'" 
+            <span onclick="closeAddModal()" 
+                  class="w3-button w3-display-topright w3-hover-red" style="border-top-right-radius: 8px;">&times;</span>
+            <h4 class="w3-margin-none"><b>ADD STUDENT</b></h4>
+        </header>
+        
+        <form action="/addstudent" method="POST" class="w3-container w3-padding-16">
+            <div class="w3-center w3-margin-bottom">
+                <div id="modal_camera" style="width: 240px; height: 180px; margin: 0 auto; border-radius: 8px; overflow: hidden; background: #eee;"></div>
+                <div id="modal_result" style="display: none; width: 240px; height: 180px; margin: 0 auto; border-radius: 8px; overflow: hidden;"></div>
+                <div class="w3-margin-top">
+                    <button type="button" id="snap_btn" onclick="takeModalSnapshot()" class="w3-button w3-small w3-blue w3-hover-dark-blue w3-round"><b>SNAP</b></button>
+                    <button type="button" id="retake_btn" onclick="retakeModalSnapshot()" style="display: none;" class="w3-button w3-small w3-amber w3-round"><b>RETAKE</b></button>
+                </div>
+            </div>
+
+            <input type="hidden" name="image" id="modal_image" />
+
+            <p class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>IDNO</b></label>
+                <input class="w3-input w3-border w3-round" type="text" name="idno" required />
+            </p>
+            <p class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>LASTNAME</b></label>
+                <input class="w3-input w3-border w3-round" type="text" name="lastname" required />
+            </p>
+            <p class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>FIRSTNAME</b></label>
+                <input class="w3-input w3-border w3-round" type="text" name="firstname" required />
+            </p>
+            <p class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>COURSE</b></label>
+                <select class="w3-select w3-border w3-round" name="course" required>
+                    <option value="" disabled selected>Select Course</option>
+                    <option value="BSIT">BSIT</option>
+                    <option value="BSCS">BSCS</option>
+                    <option value="DAAIT">DAAIT</option>
+                </select>
+            </p>
+            <p class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>LEVEL</b></label>
+                <select class="w3-select w3-border w3-round" name="level" required>
+                    <option value="" disabled selected>Select Level</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </p>
+            <div class="w3-right-align w3-margin-top">
+                <button type="button" onclick="closeAddModal()" 
+                        class="w3-button w3-grey w3-round w3-mobile w3-margin-bottom">CANCEL</button>
+                <button type="submit" class="w3-button w3-blue w3-hover-dark-blue w3-round w3-mobile w3-margin-bottom">ADD</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="editModal" class="w3-modal" style="padding-top: 80px;">
+    <div class="w3-modal-content w3-card-4 w3-animate-top w3-round-large" style="width: 90%; max-width: 480px; margin: 0 auto 40px auto;">
+        <header class="w3-container w3-blue w3-padding" style="border-top-left-radius: 8px; border-top-right-radius: 8px;">
+            <span onclick="closeEditModal()" 
                   class="w3-button w3-display-topright w3-hover-red" style="border-top-right-radius: 8px;">&times;</span>
             <h4 class="w3-margin-none"><b>EDIT STUDENT</b></h4>
         </header>
         
         <form action="/updatestudent" method="POST" class="w3-container w3-padding-16">
+            <div class="w3-center w3-margin-bottom">
+                <div id="edit_camera" style="display: none; width: 240px; height: 180px; margin: 0 auto; border-radius: 8px; overflow: hidden; background: #eee;"></div>
+                <div id="edit_result" style="width: 240px; height: 180px; margin: 0 auto; border-radius: 8px; overflow: hidden; background: #eee; display: flex; align-items: center; justify-content: center;"></div>
+                <div class="w3-margin-top">
+                    <button type="button" id="edit_change_btn" onclick="startEditCamera()" class="w3-button w3-small w3-blue w3-hover-dark-blue w3-round"><b>CHANGE PHOTO</b></button>
+                    <button type="button" id="edit_snap_btn" onclick="takeEditSnapshot()" style="display: none;" class="w3-button w3-small w3-blue w3-hover-dark-blue w3-round"><b>SNAP</b></button>
+                </div>
+            </div>
+
+            <input type="hidden" name="image" id="edit_image" />
+
             <p class="w3-margin-bottom">
                 <label class="w3-text-dark-grey"><b>IDNO</b></label>
                 <input class="w3-input w3-border w3-round w3-light-grey" type="text" id="edit_idno" name="idno" readonly />
@@ -142,24 +181,120 @@
                 </select>
             </p>
             <div class="w3-right-align w3-margin-top">
-                <button type="button" onclick="document.getElementById('editModal').style.display='none'" 
+                <button type="button" onclick="closeEditModal()" 
                         class="w3-button w3-grey w3-round w3-mobile w3-margin-bottom">CANCEL</button>
                 <button type="submit" class="w3-button w3-blue w3-hover-dark-blue w3-round w3-mobile w3-margin-bottom">SAVE</button>
             </div>
         </form>
-
     </div>
-
 </div>
 
+<script src="{{ url_for('static', filename='js/webcam.min.js') }}"></script>
 <script>
-function openEditModal(idno, lastname, firstname, course, level) {
+function stopWebcam() {
+    try {
+        Webcam.reset();
+    } catch (e) {}
+}
+
+function openAddModal() {
+    document.getElementById('addModal').style.display = 'block';
+    document.getElementById('modal_camera').style.display = 'block';
+    document.getElementById('modal_result').style.display = 'none';
+    document.getElementById('snap_btn').style.display = 'inline-block';
+    document.getElementById('retake_btn').style.display = 'none';
+    document.getElementById('modal_image').value = '';
+
+    Webcam.set({
+        width: 240,
+        height: 180,
+        dest_width: 640,
+        dest_height: 480,
+        image_format: 'jpeg',
+        jpeg_quality: 90,
+        flip_horiz: true
+    });
+    Webcam.attach('#modal_camera');
+}
+
+function closeAddModal() {
+    stopWebcam();
+    document.getElementById('addModal').style.display = 'none';
+}
+
+function takeModalSnapshot() {
+    Webcam.snap(function(data_uri) {
+        document.getElementById('modal_camera').style.display = 'none';
+        document.getElementById('modal_result').innerHTML = '<img src="' + data_uri + '" style="width: 240px; height: 180px; object-fit: cover;" />';
+        document.getElementById('modal_result').style.display = 'block';
+        document.getElementById('modal_image').value = data_uri;
+        document.getElementById('snap_btn').style.display = 'none';
+        document.getElementById('retake_btn').style.display = 'inline-block';
+    });
+}
+
+function retakeModalSnapshot() {
+    document.getElementById('modal_result').style.display = 'none';
+    document.getElementById('modal_camera').style.display = 'block';
+    document.getElementById('modal_image').value = '';
+    document.getElementById('retake_btn').style.display = 'none';
+    document.getElementById('snap_btn').style.display = 'inline-block';
+}
+
+function openEditModal(idno, lastname, firstname, course, level, imageUrl) {
     document.getElementById('edit_idno').value = idno;
     document.getElementById('edit_lastname').value = lastname;
     document.getElementById('edit_firstname').value = firstname;
     document.getElementById('edit_course').value = course.toUpperCase();
     document.getElementById('edit_level').value = level;
+    document.getElementById('edit_image').value = '';
+
+    document.getElementById('edit_camera').style.display = 'none';
+    document.getElementById('edit_result').style.display = 'flex';
+    document.getElementById('edit_change_btn').style.display = 'inline-block';
+    document.getElementById('edit_snap_btn').style.display = 'none';
+
+    if (imageUrl) {
+        document.getElementById('edit_result').innerHTML = '<img src="' + imageUrl + '" style="width: 240px; height: 180px; object-fit: cover;" />';
+    } else {
+        document.getElementById('edit_result').innerHTML = '<span class="w3-text-grey">No Image</span>';
+    }
+
     document.getElementById('editModal').style.display = 'block';
+}
+
+function startEditCamera() {
+    document.getElementById('edit_result').style.display = 'none';
+    document.getElementById('edit_camera').style.display = 'block';
+    document.getElementById('edit_change_btn').style.display = 'none';
+    document.getElementById('edit_snap_btn').style.display = 'inline-block';
+
+    Webcam.set({
+        width: 240,
+        height: 180,
+        dest_width: 640,
+        dest_height: 480,
+        image_format: 'jpeg',
+        jpeg_quality: 90,
+        flip_horiz: true
+    });
+    Webcam.attach('#edit_camera');
+}
+
+function takeEditSnapshot() {
+    Webcam.snap(function(data_uri) {
+        document.getElementById('edit_camera').style.display = 'none';
+        document.getElementById('edit_result').innerHTML = '<img src="' + data_uri + '" style="width: 240px; height: 180px; object-fit: cover;" />';
+        document.getElementById('edit_result').style.display = 'flex';
+        document.getElementById('edit_image').value = data_uri;
+        document.getElementById('edit_snap_btn').style.display = 'none';
+        document.getElementById('edit_change_btn').style.display = 'inline-block';
+    });
+}
+
+function closeEditModal() {
+    stopWebcam();
+    document.getElementById('editModal').style.display = 'none';
 }
 </script>
 {% endblock %}

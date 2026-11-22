@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+
+{% block menu %}
+    <a href="/logout" class="w3-button w3-right w3-bar-item w3-hover-white w3-round">Logout</a>
+{% endblock %}
+
+{% block content %}
+<div class="w3-row-padding">
+    <div class="w3-col m6 l6 w3-margin-bottom">
+        <div class="w3-card-4 w3-round-xlarge w3-white w3-padding-16 w3-container">
+            <div class="w3-center w3-margin-bottom">
+                <div id="my_camera" style="width: 240px; height: 180px; margin: 0 auto; border-radius: 8px; overflow: hidden; background: #eee;"></div>
+            </div>
+
+            <div class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>IDNO</b></label>
+                <input class="w3-input w3-border w3-round" type="text" id="reg_idno" oninput="syncPreview()" required />
+            </div>
+            <div class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>LASTNAME</b></label>
+                <input class="w3-input w3-border w3-round" type="text" id="reg_lastname" oninput="syncPreview()" required />
+            </div>
+            <div class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>FIRSTNAME</b></label>
+                <input class="w3-input w3-border w3-round" type="text" id="reg_firstname" oninput="syncPreview()" required />
+            </div>
+            <div class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>COURSE</b></label>
+                <select class="w3-select w3-border w3-round" id="reg_course" onchange="syncPreview()" required>
+                    <option value="" disabled selected>Select Course</option>
+                    <option value="BSIT">BSIT</option>
+                    <option value="BSCS">BSCS</option>
+                    <option value="DAAIT">DAAIT</option>
+                </select>
+            </div>
+            <div class="w3-margin-bottom">
+                <label class="w3-text-dark-grey"><b>LEVEL</b></label>
+                <select class="w3-select w3-border w3-round" id="reg_level" onchange="syncPreview()" required>
+                    <option value="" disabled selected>Select Level</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+            <div class="w3-right-align w3-margin-top">
+                <a href="/main" class="w3-button w3-grey w3-round-large"><b>BACK</b></a>
+                <button type="button" onclick="takeSnapshot()" class="w3-button w3-blue w3-hover-dark-blue w3-round-large"><b>SNAP</b></button>
+            </div>
+        </div>
+    </div>
+
+    <div class="w3-col m6 l6">
+        <div class="w3-card-4 w3-round-xlarge w3-white w3-padding-16 w3-container">
+            <div class="w3-center w3-margin-bottom">
+                <div id="results" style="width: 240px; height: 180px; margin: 0 auto; border-radius: 8px; overflow: hidden; background: #eee; display: flex; align-items: center; justify-content: center;">
+                    <span class="w3-text-grey">No Snapshot</span>
+                </div>
+            </div>
+
+            <form action="/addstudent" method="POST">
+                <input type="hidden" name="idno" id="form_idno" />
+                <input type="hidden" name="lastname" id="form_lastname" />
+                <input type="hidden" name="firstname" id="form_firstname" />
+                <input type="hidden" name="course" id="form_course" />
+                <input type="hidden" name="level" id="form_level" />
+                <input type="hidden" name="image" id="form_image" />
+
+                <table class="w3-table w3-striped w3-border">
+                    <tr>
+                        <td><b>IDNO</b></td>
+                        <td id="prev_idno"></td>
+                    </tr>
+                    <tr>
+                        <td><b>LASTNAME</b></td>
+                        <td id="prev_lastname"></td>
+                    </tr>
+                    <tr>
+                        <td><b>FIRSTNAME</b></td>
+                        <td id="prev_firstname"></td>
+                    </tr>
+                    <tr>
+                        <td><b>COURSE</b></td>
+                        <td id="prev_course"></td>
+                    </tr>
+                    <tr>
+                        <td><b>LEVEL</b></td>
+                        <td id="prev_level"></td>
+                    </tr>
+                </table>
+
+                <div class="w3-right-align w3-margin-top">
+                    <button type="submit" onclick="return validateForm()" class="w3-button w3-green w3-hover-dark-green w3-round-large"><b>SAVE</b></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/webcam.min.js') }}"></script>
+<script>
+    Webcam.set({
+    width: 240,
+    height: 180,
+    dest_width: 640,
+    dest_height: 480,
+    image_format: 'jpeg',
+    jpeg_quality: 90,
+    flip_horiz: true
+    });
+
+    Webcam.attach('#my_camera');
+
+    function syncPreview() {
+        const idno = document.getElementById('reg_idno').value;
+        const lastname = document.getElementById('reg_lastname').value;
+        const firstname = document.getElementById('reg_firstname').value;
+        const course = document.getElementById('reg_course').value;
+        const level = document.getElementById('reg_level').value;
+
+        document.getElementById('prev_idno').innerText = idno;
+        document.getElementById('prev_lastname').innerText = lastname;
+        document.getElementById('prev_firstname').innerText = firstname;
+        document.getElementById('prev_course').innerText = course;
+        document.getElementById('prev_level').innerText = level;
+
+        document.getElementById('form_idno').value = idno;
+        document.getElementById('form_lastname').value = lastname;
+        document.getElementById('form_firstname').value = firstname;
+        document.getElementById('form_course').value = course;
+        document.getElementById('form_level').value = level;
+    }
+
+    function takeSnapshot() {
+        syncPreview();
+        Webcam.snap(function(data_uri) {
+            document.getElementById('results').innerHTML = '<img src="' + data_uri + '" style="width: 240px; height: 180px; object-fit: cover;" />';
+            document.getElementById('form_image').value = data_uri;
+        });
+    }
+
+    function validateForm() {
+        syncPreview();
+        const idno = document.getElementById('form_idno').value.trim();
+        const lastname = document.getElementById('form_lastname').value.trim();
+        const firstname = document.getElementById('form_firstname').value.trim();
+        const course = document.getElementById('form_course').value;
+        const level = document.getElementById('form_level').value;
+
+        if (!idno || !lastname || !firstname || !course || !level) {
+            alert("Please fill out all student fields before saving.");
+            return false;
+        }
+        return true;
+    }
+</script>
+{% endblock %}
