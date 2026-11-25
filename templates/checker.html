@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block menu %}
+    <a href="/main" class="w3-button w3-right w3-bar-item w3-hover-white w3-round w3-card 2 w3-margin-right">MAIN</a>
+{% endblock %}
+
+{% block content %}
+<div class="w3-row-padding">
+    <div class="w3-col m6 l6 w3-margin-bottom">
+        <div class="w3-card-4 w3-round-xlarge w3-white w3-padding-16 w3-container">
+            <div id="reader" style="width: 100%;"></div>
+        </div>
+    </div>
+
+    <div class="w3-col m6 l6">
+        <div class="w3-card-4 w3-round-xlarge w3-white w3-padding-16 w3-container">
+            {% if student and student.image %}
+                <div class="w3-center w3-margin-bottom">
+                    <img src="{{ url_for('static', filename=student.image) }}" style="width: 180px; height: 135px; object-fit: cover; border-radius: 8px;" />
+                </div>
+            {% endif %}
+
+            <table class="w3-table w3-striped w3-border">
+                <tr>
+                    <td><b>IDNO</b></td>
+                    <td>{{ student.idno if student else '' }}</td>
+                </tr>
+                <tr>
+                    <td><b>LASTNAME</b></td>
+                    <td>{{ student.lastname if student else '' }}</td>
+                </tr>
+                <tr>
+                    <td><b>FIRSTNAME</b></td>
+                    <td>{{ student.firstname if student else '' }}</td>
+                </tr>
+                <tr>
+                    <td><b>COURSE</b></td>
+                    <td>{{ student.course if student else '' }}</td>
+                </tr>
+                <tr>
+                    <td><b>LEVEL</b></td>
+                    <td>{{ student.level if student else '' }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/html5-qrcode.min.js') }}"></script>
+<script>
+const scanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 220 });
+scanner.render((decodedText) => {
+    window.location.href = "/checker/" + decodedText.trim();
+});
+</script>
+{% endblock %}

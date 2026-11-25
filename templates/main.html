@@ -2,7 +2,8 @@
 
 {% block menu %}
     <a href="/register" class="w3-button w3-bar-item w3-card w3-blue w3-hover-white w3-round w3-margin-left">REGISTER</a>
-    <a href="/logout" class="w3-button w3-right w3-bar-item w3-hover-white w3-round">Logout</a>
+    <a href="/logout" class="w3-button w3-right w3-bar-item w3-hover-red w3-round">Logout</a>
+    <a href="/checker" class="w3-button w3-right w3-bar-item w3-hover-white w3-round w3-margin-right w3-card 2">CHECKER</a>
 {% endblock %}
 
 {% block content %}
@@ -180,6 +181,11 @@
                     <option value="4">4</option>
                 </select>
             </p>
+
+            <div class="w3-center w3-margin-top w3-margin-bottom">
+                <div id="edit_qrcode" style="display: inline-block; padding: 8px; background: #fff; border: 1px solid #ddd; border-radius: 8px;"></div>
+            </div>
+
             <div class="w3-right-align w3-margin-top">
                 <button type="button" onclick="closeEditModal()" 
                         class="w3-button w3-grey w3-round w3-mobile w3-margin-bottom">CANCEL</button>
@@ -190,6 +196,7 @@
 </div>
 
 <script src="{{ url_for('static', filename='js/webcam.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/qrcode.min.js') }}"></script>
 <script>
 function stopWebcam() {
     try {
@@ -211,8 +218,7 @@ function openAddModal() {
         dest_width: 640,
         dest_height: 480,
         image_format: 'jpeg',
-        jpeg_quality: 90,
-        flip_horiz: true
+        jpeg_quality: 90
     });
     Webcam.attach('#modal_camera');
 }
@@ -260,6 +266,14 @@ function openEditModal(idno, lastname, firstname, course, level, imageUrl) {
         document.getElementById('edit_result').innerHTML = '<span class="w3-text-grey">No Image</span>';
     }
 
+    const qrContainer = document.getElementById('edit_qrcode');
+    qrContainer.innerHTML = '';
+    new QRCode(qrContainer, {
+        text: idno,
+        width: 128,
+        height: 128
+    });
+
     document.getElementById('editModal').style.display = 'block';
 }
 
@@ -275,8 +289,7 @@ function startEditCamera() {
         dest_width: 640,
         dest_height: 480,
         image_format: 'jpeg',
-        jpeg_quality: 90,
-        flip_horiz: true
+        jpeg_quality: 90
     });
     Webcam.attach('#edit_camera');
 }

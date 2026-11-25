@@ -3,30 +3,28 @@ import sys
 import base64
 sys.path.insert(0, 'db/')
 
-from flask import Flask, render_template, request, redirect, url_for, session, flash 
+from flask import Flask, render_template, request, redirect, url_for, session, flash
+from db.dbhelper import deleterecord, getall, getrecord, updatestudent, addstudent
 
-from db.dbhelper import deleterecord, getall, getrecord, updatestudent,addstudent
-
-
-app:any = Flask(__name__)
-app.secret_key='febe9854-9ac3-40d2-ab41-49a973d61446'
+app: any = Flask(__name__)
+app.secret_key = 'febe9854-9ac3-40d2-ab41-49a973d61446'
 
 @app.after_request
-def after_request(response)->None:
+def after_request(response) -> None:
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
     return response
 
 @app.route('/')
-def index()->None:
+def index() -> None:
     if 'email' in session:
         return redirect(url_for('main'))
     return render_template('index.html')
 
 @app.route("/main")
-def main()->None:
+def main() -> None:
     if 'email' in session:
-        students:list = getall("students")
-        return render_template("main.html",slist=students)
+        students: list = getall("students")
+        return render_template("main.html", slist=students)
     else:
         return redirect(url_for('index'))
 
@@ -37,14 +35,27 @@ def register() -> None:
     else:
         return redirect(url_for('index'))
 
+@app.route("/checker")
+@app.route("/checker/<idno>")
+def checker(idno=None):
+    if 'email' not in session:
+        return redirect(url_for('index'))
+    student = None
+    if idno:
+        res = getrecord("students", idno=idno)
+        if len(res) > 0:
+            student = res[0]
+        else:
+            flash("Student not found!")
+    return render_template("checker.html", student=student)
 
-@app.route("/userlogin",methods=['POST'])
-def userlogin()->None:
-    email:str = request.form['email']
-    password:str = request.form['password']
-    user:list = getrecord('users',email=email,password=password)
+@app.route("/userlogin", methods=['POST'])
+def userlogin() -> None:
+    email: str = request.form['email']
+    password: str = request.form['password']
+    user: list = getrecord('users', email=email, password=password)
 
-    if len(user)>0:
+    if len(user) > 0:
         session['email'] = email
         flash("Login Successful")
         return redirect(url_for('main'))
@@ -122,7 +133,6 @@ def delete_student(idno):
     if 'email' not in session:
         return redirect(url_for('index'))
 
-    
     student = getrecord("students", idno=idno)
     if len(student) > 0 and student[0]['image']:
         file_path = os.path.join("static", student[0]['image'])
@@ -135,10 +145,8 @@ def delete_student(idno):
         flash("Failed to delete student.")
     return redirect(url_for('main'))
 
-
-
 @app.route("/logout")
-def logout()->None:
+def logout() -> None:
     session.clear()
     flash("You have been logged out.")
     return redirect(url_for('index'))
